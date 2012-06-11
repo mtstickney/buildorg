@@ -1,0 +1,11 @@
+* The Service
+  This application provides an org-mode compilation service. The
+  application provides two urls for uploading org-mode documents for
+  compilation.
+
+  The =build/= url allows a client to POST one or more org-mode files
+  and receive a zip file containing the converted pdfs files and
+  associated logs.
+
+* Example
+  : curl -F file1=@myfile.org -o myfile.zip docs.foo.com/build/
