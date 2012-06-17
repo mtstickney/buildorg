@@ -10,12 +10,29 @@ app = Flask(__name__)
 EMACS_CMD=['emacs', '--batch', '--visit={{file}}', '--funcall', 'org-export-as-pdf']
 CONV_DIR='conversion'
 LOG_FILE='{{file}}.log'
+ZIP_NAME='org.zip'
 
 def mk_dir():
 	tmpdir = tempfile.mkdtemp()
 	path = os.path.join(tmpdir, CONV_DIR)
 	os.mkdir(path)
 	return tmpdir
+
+def gen_tree(dir):
+	for path, dirs, files in os.walk(dir):
+		for f in files:
+			yield os.path.join(path, f)
+		for d in dirs:
+			yield os.path.join(path, d)
+
+def zip_convdir(loc, dir, zipfile):
+	"Make a zipfile of the files in <loc>/<dir>/ called zipfile (contains directory <dir>)"
+	cwd = os.getcwd()
+	os.chdir(loc)
+	with ZipFile(os.path.join(loc, zipfile), 'a') as zip:
+		for p in gen_tree(dir):
+			zip.write(p)
+	os.chdir(cwd)
 
 def pdf_name(filename):
 	return '.'.join([filename.rsplit('.', 1)[0], 'pdf'])
@@ -25,9 +42,8 @@ def package_files(tmpdir, filename):
 	pdffile = pdf_name(filename)
 	shutil.copy(os.path.join(tmpdir, logfile), os.path.join(tmpdir, CONV_DIR))
 	shutil.copy(os.path.join(tmpdir, pdffile), os.path.join(tmpdir, CONV_DIR))
-	with ZipFile(os.path.join(tmpdir, 'org.zip'), 'a') as zip:
-		zip.write(os.path.join(tmpdir, CONV_DIR), arcname=CONV_DIR)
-	return send_from_directory(tmpdir, 'org.zip')
+	zip_convdir(tmpdir, CONV_DIR, ZIP_NAME)
+	return send_from_directory(tmpdir, ZIP_NAME, as_attachment=True, attachment_filename=ZIP_NAME)
 
 def build_org_file(tmpdir, filename):
 	filepath = os.path.join(tmpdir, filename)
