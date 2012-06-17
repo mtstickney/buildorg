@@ -1,4 +1,4 @@
-from flask import Flask, send_from_directory, request, redirect, url_for, g
+from flask import Flask, send_from_directory, request, redirect, url_for, g, abort
 from werkzeug import secure_filename
 from jinja2 import Template
 import tempfile, os, shutil, subprocess
@@ -53,7 +53,7 @@ def build_org_file(tmpdir, filename):
 	with open(logpath, 'w') as logf:
 		try:
 			subprocess.check_call(cmd, stderr=logf)
-		except CalledProcessError:
+		except subprocess.CalledProcessError:
 			return abort(400)
 	return package_files(tmpdir, filename)
 
