@@ -55,7 +55,7 @@ def build_org_file(tmpdir, filename):
 			subprocess.check_call(cmd, stderr=logf)
 		except CalledProcessError:
 			return abort(400)
-		return package_files(tmpdir, filename)	
+	return package_files(tmpdir, filename)
 
 @app.route('/build/', methods=['GET', 'POST'])
 def return_image():
