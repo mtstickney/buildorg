@@ -109,10 +109,6 @@ def return_image():
 	</html>
 '''
 
-@app.route('/display/')
-def display_filename():
-	return request.args['filename']
-
 if __name__ == "__main__":
     app.debug=True
     app.run()
