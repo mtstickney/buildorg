@@ -3,6 +3,8 @@ from werkzeug import secure_filename
 from jinja2 import Template
 import tempfile, os, shutil, subprocess
 from zipfile import ZipFile
+from datetime import datetime, timedelta
+import shutil
 
 app = Flask(__name__)
 
@@ -11,6 +13,8 @@ EMACS_CMD=['emacs', '--batch', '--visit={{file}}', '--funcall', 'org-export-as-p
 CONV_DIR='conversion'
 LOG_FILE='{{file}}.log'
 ZIP_NAME='org.zip'
+TEMP_DIRS=[]
+ONGOING_BUILDS=[]
 
 def mk_dir():
 	tmpdir = tempfile.mkdtemp()
@@ -43,9 +47,12 @@ def package_files(tmpdir, filename):
 	shutil.copy(os.path.join(tmpdir, logfile), os.path.join(tmpdir, CONV_DIR))
 	shutil.copy(os.path.join(tmpdir, pdffile), os.path.join(tmpdir, CONV_DIR))
 	zip_convdir(tmpdir, CONV_DIR, ZIP_NAME)
+	ONGOING_BUILDS.remove(tmpdir)
 	return send_from_directory(tmpdir, ZIP_NAME, as_attachment=True, attachment_filename=ZIP_NAME)
 
 def build_org_file(tmpdir, filename):
+	# Lock the temp directory during build (will be unlocked by package_files())
+	ONGOING_BUILDS.append(tmpdir)
 	filepath = os.path.join(tmpdir, filename)
 	logfile = Template(LOG_FILE).render(file=filepath)
 	logpath = os.path.join(tmpdir, logfile)
@@ -57,13 +64,31 @@ def build_org_file(tmpdir, filename):
 			return abort(400)
 	return package_files(tmpdir, filename)
 
+def fresh(item):
+	if datetime.now()-item[0] < timedelta(minutes=5) or item[1] in ONGOING_BUILDS:
+		return True
+	return False
+
+def clean_dirs():
+	global TEMP_DIRS
+	i = len(TEMP_DIRS)
+	staledirs = [d for d in TEMP_DIRS if not fresh(d)]
+	freshdirs = [d for d in TEMP_DIRS if fresh(d)]
+	for d in staledirs:
+		shutil.rmtree(os.path.realpath(d[1]))
+	TEMP_DIRS = freshdirs
+
 @app.route('/build/', methods=['GET', 'POST'])
 def return_image():
+	# Clean up any expired temp dirs
+	clean_dirs()
+
 	if request.method == 'POST':
 		file = request.files['file1']
 		if file:
 			filename=secure_filename(file.filename)
 			dir = mk_dir()
+			TEMP_DIRS.append((datetime.now(), dir))
 			path = os.path.join(dir, secure_filename(filename))
 			file.save(path)
 			return build_org_file(dir, secure_filename(filename))
