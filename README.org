@@ -4,8 +4,8 @@
   of compiled pdfs and build logs, or a "Bad Request" error if the build 
   process fails entirely.
 
-  The =/build/= url allows access to the build service directly, without going 
+  By default, the services is accessible at the =/build/= url.
   through the web form
 
 * Example
-  : curl -F file1=@myfile.org -o myfile.zip docs.foo.com/build/
+  : curl --form org_file=@myfile.org --form buildit=OK -o myfile.zip http://docs.foo.com/build/
