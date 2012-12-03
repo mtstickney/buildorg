@@ -74,7 +74,7 @@ def build_org_file(tmpdir, filename):
 		try:
 			subprocess.check_call(cmd, stderr=logf)
 		except subprocess.CalledProcessError:
-			return abort(400)
+			return abort(500)
 	return package_files(tmpdir, filename)
 
 
