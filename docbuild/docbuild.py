@@ -13,6 +13,7 @@ SVC_PORT = 5000
 BIND_ADDR = '127.0.0.1'
 FORM_URL = '/'
 BUILD_URL = '/build/'
+DEBUG_MODE = False
 
 # Service configuration -- edit these if you need to.
 EMACS_CMD = ['emacs', '--batch',
@@ -140,5 +141,8 @@ def return_zip():
 
 
 if __name__ == "__main__":
-    app.debug=True
-    app.run()
+	if DEBUG_MODE:
+		app.debug=True
+		app.run(host='127.0.0.1', port=SVC_PORT)
+	else:
+		app.run(host=BIND_ADDR, port=SVC_PORT)
