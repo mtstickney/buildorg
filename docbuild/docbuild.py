@@ -1,7 +1,7 @@
 from flask import Flask, send_from_directory, request, redirect, url_for, g, abort
 from werkzeug import secure_filename
 from jinja2 import Template
-import tempfile, os, shutil, subprocess
+import tempfile, os, shutil, subprocess, StringIO
 from zipfile import ZipFile
 from datetime import datetime, timedelta
 import shutil
@@ -33,10 +33,13 @@ def zip_convdir(loc, dir, zipfile):
 	"Make a zipfile of the files in <loc>/<dir>/ called zipfile (contains directory <dir>)"
 	cwd = os.getcwd()
 	os.chdir(loc)
-	with ZipFile(os.path.join(loc, zipfile), 'a') as zip:
+	sio = StringIO.StringIO()
+	with ZipFile(sio, 'a') as z:
 		for p in gen_tree(dir):
-			zip.write(p)
+			z.write(p)
 	os.chdir(cwd)
+	sio.seek(0)
+	return sio
 
 def pdf_name(filename):
 	return '.'.join([filename.rsplit('.', 1)[0], 'pdf'])
@@ -46,9 +49,11 @@ def package_files(tmpdir, filename):
 	pdffile = pdf_name(filename)
 	shutil.copy(os.path.join(tmpdir, logfile), os.path.join(tmpdir, CONV_DIR))
 	shutil.copy(os.path.join(tmpdir, pdffile), os.path.join(tmpdir, CONV_DIR))
-	zip_convdir(tmpdir, CONV_DIR, ZIP_NAME)
+	zf = zip_convdir(tmpdir, CONV_DIR, ZIP_NAME)
 	ONGOING_BUILDS.remove(tmpdir)
-	return send_from_directory(tmpdir, ZIP_NAME, as_attachment=True, attachment_filename=ZIP_NAME)
+
+	return send_file(zf, mimetype='application/zip',
+		as_attachment=True, attachment_filename=ZIP_NAME)
 
 def build_org_file(tmpdir, filename):
 	# Lock the temp directory during build (will be unlocked by package_files())
