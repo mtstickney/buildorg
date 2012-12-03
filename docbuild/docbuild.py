@@ -89,14 +89,14 @@ def return_image():
 	clean_dirs()
 
 	if request.method == 'POST':
-		file = request.files['file1']
-		if file:
-			filename=secure_filename(file.filename)
-			dir = mk_dir()
-			TEMP_DIRS.append((datetime.now(), dir))
-			path = os.path.join(dir, secure_filename(filename))
-			file.save(path)
-			return build_org_file(dir, secure_filename(filename))
+		orgfile = request.files['file1']
+		if orgfile:
+			filename=secure_filename(orgfile.filename)
+			builddir = mk_dir()
+			TEMP_DIRS.append((datetime.now(), builddir))
+			path = os.path.join(builddir, secure_filename(filename))
+			orgfile.save(path)
+			return build_org_file(builddir, secure_filename(filename))
 
 	return '''
 	<!doctype html>
