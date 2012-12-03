@@ -87,7 +87,6 @@ def fresh(item):
 
 def clean_dirs():
 	global TEMP_DIRS
-	i = len(TEMP_DIRS)
 	staledirs = [d for d in TEMP_DIRS if not fresh(d)]
 	freshdirs = [d for d in TEMP_DIRS if fresh(d)]
 	for d in staledirs:
