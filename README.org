@@ -14,3 +14,8 @@
 * Usage
   Simply run the =docbuild.py= script:
   : python docbuild.py
+* Future Work
+  - Have configuration parameters be specified on the command line instead of as global variables.
+  - Clean up the document processing code a bit
+  - Remove stale temp directories on server shutdown, instead of just on requests.
+  - Better interface!
