@@ -8,12 +8,16 @@ from datetime import datetime, timedelta
 app = Flask(__name__)
 
 # configuration
-EMACS_CMD=['emacs', '--batch', '--visit={{file}}', '--funcall', 'org-export-as-pdf']
-CONV_DIR='conversion'
-LOG_FILE='{{file}}.log'
-ZIP_NAME='org.zip'
-TEMP_DIRS=[]
-ONGOING_BUILDS=[]
+EMACS_CMD = ['emacs', '--batch',
+	'--visit={{file}}',
+	'--funcall',
+	'org-export-as-pdf']
+CONV_DIR = 'conversion'
+LOG_FILE = '{{file}}.log'
+ZIP_NAME = 'org.zip'
+TEMP_DIRS = []
+ONGOING_BUILDS = []
+
 
 def mk_dir():
 	tmpdir = tempfile.mkdtemp()
@@ -21,12 +25,14 @@ def mk_dir():
 	os.mkdir(path)
 	return tmpdir
 
+
 def gen_tree(dir):
 	for path, dirs, files in os.walk(dir):
 		for f in files:
 			yield os.path.join(path, f)
 		for d in dirs:
 			yield os.path.join(path, d)
+
 
 def zip_convdir(loc, dir, zipfile):
 	"Make a zipfile of the files in <loc>/<dir>/ called zipfile (contains directory <dir>)"
@@ -40,8 +46,10 @@ def zip_convdir(loc, dir, zipfile):
 	sio.seek(0)
 	return sio
 
+
 def pdf_name(filename):
 	return '.'.join([filename.rsplit('.', 1)[0], 'pdf'])
+
 
 def package_files(tmpdir, filename):
 	logfile = Template(LOG_FILE).render(file=filename)
@@ -51,8 +59,10 @@ def package_files(tmpdir, filename):
 	zf = zip_convdir(tmpdir, CONV_DIR, ZIP_NAME)
 	ONGOING_BUILDS.remove(tmpdir)
 
+
 	return send_file(zf, mimetype='application/zip',
 		as_attachment=True, attachment_filename=ZIP_NAME)
+
 
 def build_org_file(tmpdir, filename):
 	# Lock the temp directory during build (will be unlocked by package_files())
@@ -68,10 +78,12 @@ def build_org_file(tmpdir, filename):
 			return abort(400)
 	return package_files(tmpdir, filename)
 
+
 def fresh(item):
 	if datetime.now()-item[0] < timedelta(minutes=5) or item[1] in ONGOING_BUILDS:
 		return True
 	return False
+
 
 def clean_dirs():
 	global TEMP_DIRS
@@ -81,6 +93,7 @@ def clean_dirs():
 	for d in staledirs:
 		shutil.rmtree(os.path.realpath(d[1]))
 	TEMP_DIRS = freshdirs
+
 
 @app.route('/build/', methods=['GET', 'POST'])
 def return_image():
