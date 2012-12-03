@@ -12,7 +12,9 @@
   : curl --form org_file=@myfile.org --form buildit=OK -o myfile.zip http://docs.foo.com/build/
 
 * Usage
-  1. Edit the configuration parameters at the top of the docbuild.py file.
+  1. Edit the configuration parameters at the top of the docbuild.py file. Note that if =DEBUG_MODE=
+     is set to =True=, the service will only bind to localhost (there are security risks to exposing
+     the debug interface to the outside world).
   2. Make sure the script is executable
       : chmod +x docbuild.py
   3. Run it:
