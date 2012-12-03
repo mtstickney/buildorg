@@ -4,8 +4,9 @@
   and sends back a zip file of compiled pdfs and build logs, or a 500
   "Internal Server Error" error if the build  process fails entirely.
 
-  By default, the services is accessible at the =/build/= url.
-  through the web form
+  By default, the services is accessible at the =/build/= url. GET
+  requests to =/build/= will return the upload form, while POST requests can
+  be used to upload files without using the form.
 
 * Example
   : curl --form org_file=@myfile.org --form buildit=OK -o myfile.zip http://docs.foo.com/build/
