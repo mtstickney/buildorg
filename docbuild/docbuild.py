@@ -6,7 +6,13 @@ from datetime import datetime, timedelta
 
 app = Flask(__name__)
 
-# configuration
+# User configuration -- edit these to match your setup.
+SVC_PORT = 5000
+BIND_ADDR = '127.0.0.1'
+FORM_URL = '/'
+BUILD_URL = '/build/'
+
+# Service configuration -- edit these if you need to.
 EMACS_CMD = ['emacs', '--batch',
 	'--visit={file}',
 	'--funcall',
@@ -14,6 +20,9 @@ EMACS_CMD = ['emacs', '--batch',
 CONV_DIR = 'conversion'
 LOG_FILE = '{file}.log'
 ZIP_NAME = 'org.zip'
+
+# Service code -- Nothing to see here, move along.
+
 TEMP_DIRS = []
 ONGOING_BUILDS = []
 
@@ -93,20 +102,10 @@ def clean_dirs():
 	TEMP_DIRS = freshdirs
 
 
-@app.route('/build/', methods=['GET', 'POST'])
+@app.route(FORM_URL, methods=['GET'])
 def return_image():
 	# Clean up any expired temp dirs
 	clean_dirs()
-
-	if request.method == 'POST':
-		orgfile = request.files['org_file']
-		if orgfile:
-			filename=secure_filename(orgfile.filename)
-			builddir = mk_dir()
-			TEMP_DIRS.append((datetime.now(), builddir))
-			path = os.path.join(builddir, secure_filename(filename))
-			orgfile.save(path)
-			return build_org_file(builddir, secure_filename(filename))
 
 	return '''
 	<!doctype html>
@@ -116,13 +115,27 @@ def return_image():
 	</head>
 	<body>
 	<h1>Upload new file</h1>
-	<form action="" method="post" enctype="multipart/form-data">
+	<form action="{}" method="post" enctype="multipart/form-data">
 	<p><input type="file" name="org_file"></p>
 	<input type="Submit" value="Upload">
 	</form>
 	</body>
 	</html>
-'''
+'''.format(BUILD_URL)
+
+@app.route(BUILD_URL, methods=['POST'])
+def return_zip():
+	orgfile = request.files['org_file']
+	if not orgfile:
+		return abort(400)
+
+	filename=secure_filename(orgfile.filename)
+	builddir = mk_dir()
+	TEMP_DIRS.append((datetime.now(), builddir))
+	path = os.path.join(builddir, secure_filename(filename))
+	orgfile.save(path)
+	return build_org_file(builddir, secure_filename(filename))
+
 
 if __name__ == "__main__":
     app.debug=True
