@@ -9,3 +9,7 @@
 
 * Example
   : curl --form org_file=@myfile.org --form buildit=OK -o myfile.zip http://docs.foo.com/build/
+
+* Usage
+  Simply run the =docbuild.py= script:
+  : python docbuild.py
