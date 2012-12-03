@@ -1,6 +1,5 @@
 from flask import Flask, send_file, request, abort
 from werkzeug import secure_filename
-from jinja2 import Template
 import tempfile, os, shutil, subprocess, StringIO
 from zipfile import ZipFile
 from datetime import datetime, timedelta
@@ -9,11 +8,11 @@ app = Flask(__name__)
 
 # configuration
 EMACS_CMD = ['emacs', '--batch',
-	'--visit={{file}}',
+	'--visit={file}',
 	'--funcall',
 	'org-export-as-pdf']
 CONV_DIR = 'conversion'
-LOG_FILE = '{{file}}.log'
+LOG_FILE = '{file}.log'
 ZIP_NAME = 'org.zip'
 TEMP_DIRS = []
 ONGOING_BUILDS = []
@@ -52,7 +51,7 @@ def pdf_name(filename):
 
 
 def package_files(tmpdir, filename):
-	logfile = Template(LOG_FILE).render(file=filename)
+	logfile = LOG_FILE.format(file=filename)
 	pdffile = pdf_name(filename)
 	shutil.copy(os.path.join(tmpdir, logfile), os.path.join(tmpdir, CONV_DIR))
 	shutil.copy(os.path.join(tmpdir, pdffile), os.path.join(tmpdir, CONV_DIR))
@@ -68,9 +67,9 @@ def build_org_file(tmpdir, filename):
 	# Lock the temp directory during build (will be unlocked by package_files())
 	ONGOING_BUILDS.append(tmpdir)
 	filepath = os.path.join(tmpdir, filename)
-	logfile = Template(LOG_FILE).render(file=filepath)
+	logfile = LOG_FILE.format(file=filepath)
 	logpath = os.path.join(tmpdir, logfile)
-	cmd = [Template(a).render(file=filepath) for a in EMACS_CMD]
+	cmd = [a.format(file=filepath) for a in EMACS_CMD]
 	with open(logpath, 'w') as logf:
 		try:
 			subprocess.check_call(cmd, stderr=logf)
