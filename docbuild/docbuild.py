@@ -99,7 +99,7 @@ def return_image():
 	clean_dirs()
 
 	if request.method == 'POST':
-		orgfile = request.files['file1']
+		orgfile = request.files['org_file']
 		if orgfile:
 			filename=secure_filename(orgfile.filename)
 			builddir = mk_dir()
@@ -117,7 +117,7 @@ def return_image():
 	<body>
 	<h1>Upload new file</h1>
 	<form action="" method="post" enctype="multipart/form-data">
-	<p><input type="file" name="file1"></p>
+	<p><input type="file" name="org_file"></p>
 	<input type="Submit" value="Upload">
 	</form>
 	</body>
