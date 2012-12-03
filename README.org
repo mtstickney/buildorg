@@ -26,6 +26,8 @@
   [[http://flask.pocoo.org/][Flask]] only supports Python 2.
 
 * Future Work
+  - Stop using Emacs to render these things (maybe use one of the libs
+    [[http://orgmode.org/worg/org-tools/index.html][here]])
   - Have configuration parameters be specified on the command line instead of as global variables.
   - Clean up the document processing code a bit
   - Remove stale temp directories on server shutdown, instead of just on requests.
