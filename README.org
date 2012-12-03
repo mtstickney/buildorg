@@ -14,6 +14,11 @@
 * Usage
   Simply run the =docbuild.py= script:
   : python docbuild.py
+* Dependencies
+  Requires the [[http://flask.pocoo.org/][Flask]]] framework, and (of
+  course) Python. *Note*: at the time of writing,
+  [[http://flask.pocoo.org/][Flask]] only supports Python 2.
+
 * Future Work
   - Have configuration parameters be specified on the command line instead of as global variables.
   - Clean up the document processing code a bit
