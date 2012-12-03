@@ -12,8 +12,12 @@
   : curl --form org_file=@myfile.org --form buildit=OK -o myfile.zip http://docs.foo.com/build/
 
 * Usage
-  Simply run the =docbuild.py= script:
-  : python docbuild.py
+  1. Edit the configuration parameters at the top of the docbuild.py file.
+  2. Make sure the script is executable
+      : chmod +x docbuild.py
+  3. Run it:
+      : docbuild.py
+
 * Dependencies
   Requires the [[http://flask.pocoo.org/][Flask]]] framework, and (of
   course) Python. *Note*: at the time of writing,
